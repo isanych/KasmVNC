@@ -4,7 +4,7 @@ Docker CE
 # Build a deb/rpm package
 ```
 # builder/build-package <os> <os_codename> <build_tag>
-# os_codename is what "lsb_release -c" outputs, e.g. buster, focal.
+# os_codename is what "lsb_release -c" outputs, e.g. buster, focal, resolute.
 #
 # build_tag allows building multiple versions of deb package (rpm not supported)
 # targeting a single distro release (e.g. Ubuntu Focal). If build_tag is given,
@@ -17,6 +17,7 @@ Docker CE
 # Packages will be placed under builder/build/
 
 builder/build-package ubuntu focal
+builder/build-package ubuntu resolute
 builder/build-package debian buster
 builder/build-package debian bullseye
 builder/build-package kali kali-rolling
@@ -179,4 +180,4 @@ cd KasmVNC
 sudo builder/build-package ubuntu focal
 ```
 The resulting deb package can be found under ~/KasmVNC/builder/build/focal
-Replace ```focal``` with ```noble``` to build for Ubuntu 24.04LTS.
+Replace ```focal``` with ```resolute``` to build for Ubuntu 26.04LTS.
