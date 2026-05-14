@@ -6,17 +6,31 @@ build_www_dir() {
   local webpacked_www=$PWD/builder/www
   local src_www=kasmweb
 
-  if [ "$src_www" -nt "$webpacked_www" ]; then
+  if [ ! -d "$webpacked_www" ] || \
+     [ -z "$(find "$webpacked_www" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ] || \
+     [ "$src_www" -nt "$webpacked_www" ]; then
     docker build -t kasmweb/www -f builder/dockerfile.www.build .
     docker run --rm -v $PWD/builder/www:/build kasmweb/www:latest
   fi
 }
 
+move_built_file_into_repo() {
+  local source_file="$1"
+  local destination_file="$2"
+
+  if [ -O "$source_file" ]; then
+    mv "$source_file" "$destination_file"
+  else
+    cp "$source_file" "$destination_file"
+  fi
+}
+
 move_libjpeg_turbo_to_os_specific_dir() {
-  chown $L_UID:$L_GID $shared_with_docker_dir/${os_codename}/*
   mkdir -p $PWD/builder/build/${os_codename}/
-  mv $shared_with_docker_dir/${os_codename}/libjpeg-turbo*.deb \
-    $PWD/builder/build/${os_codename}/
+  for libjpeg_turbo_deb in "$shared_with_docker_dir/${os_codename}"/libjpeg-turbo*.deb; do
+    move_built_file_into_repo "$libjpeg_turbo_deb" \
+      "$PWD/builder/build/${os_codename}/$(basename "$libjpeg_turbo_deb")"
+  done
 }
 
 shared_with_docker_dir=${GITLAB_SHARED_DIND_DIR:-/tmp}
@@ -34,13 +48,10 @@ docker run -v $shared_with_docker_dir:/build -e BUILD_TAG="$build_tag" \
   -e KASMVNC_COMMIT_ID="$KASMVNC_COMMIT_ID" \
   --rm "$builder_image"
 
-L_GID=$(id -g)
-L_UID=$(id -u)
 tarball_name="kasmvnc.${os}_${os_codename}.tar.gz"
 tarball_name_with_build_tag="kasmvnc.${os}_${os_codename}${build_tag}.tar.gz"
-chown $L_UID:$L_GID $shared_with_docker_dir/$tarball_name
-mv $shared_with_docker_dir/$tarball_name \
-  $PWD/builder/build/"$tarball_name_with_build_tag"
+move_built_file_into_repo "$shared_with_docker_dir/$tarball_name" \
+  "$PWD/builder/build/$tarball_name_with_build_tag"
 
 if [ "$build_tag" = "+libjpeg-turbo_latest" ]; then
   move_libjpeg_turbo_to_os_specific_dir

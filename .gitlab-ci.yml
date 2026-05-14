@@ -60,6 +60,8 @@ stages:
         GROUP: 1
       - DISTRO: 'ubuntu noble'
         GROUP: 2
+      - DISTRO: 'ubuntu resolute'
+        GROUP: 16
       - DISTRO: 'debian bullseye'
         GROUP: 3
       - DISTRO: 'debian bookworm'

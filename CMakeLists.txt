@@ -2,9 +2,9 @@
 # Setup
 #
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 if(POLICY CMP0022)
-  cmake_policy(SET CMP0022 OLD)
+  cmake_policy(SET CMP0022 NEW)
 endif()
 
 # Internal cmake modules
